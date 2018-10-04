@@ -13,3 +13,22 @@ The command-line interface has two arguments: `store`, the name of the file to w
 `python EditDistance.py --store ed.pkl --source data/spelling/wikipedia_misspellings.txt`
 
 to generate a model from `/data/spelling/wikipedia_misspellings.txt` and save it to `ed.pkl`. 
+
+3. What n-gram orders are supported by the given LanguageModel class?
+
+It supports unigrams and bigrams. 
+
+4. How does the given LanguageModel class deal with the problem of 0-counts?
+
+It lumps all unknown words into a new word, "UNK", for all words unknown to the training model. 
+
+5. What behavior does the `__contains__()` method of the LanguageModel class provide?
+
+Returns true if input is in the vocabulary; false if otherwise. 
+
+6. Spacy uses a lot of memory if it tries to load a very large document. To avoid that problem, LanguageModel limits the amount of text that’s processed at once with the `get_chunks` method. Explain how that method works.
+
+The `get_chunks` method caps the size of the chunk processed at once with the parameter `chunk_size` 100000
+
+7. Describe the command-line interface for LanguageModel.py. What command should you run to generate a model from /data/gutenberg/*.txt and save it to lm.pkl if you want an alpha value of 0.1 and a vocabulary size of 40000?
+
