@@ -22,7 +22,7 @@ Returns true if input is in the vocabulary; false if otherwise.
 
 6. Spacy uses a lot of memory if it tries to load a very large document. To avoid that problem, LanguageModel limits the amount of text that’s processed at once with the `get_chunks` method. Explain how that method works.
 
-The `get_chunks` method caps the size of the chunk processed at once with the parameter `chunk_size` 100000
+The `get_chunks` method reads in a set of source files and for each file reads in a chunk of that file. The method caps the size of the chunk processed at once with the parameter `chunk_size` which has a default of 100000 (but the user can pass in whatever they like). 
 
 7. Describe the command-line interface for LanguageModel.py. What command should you run to generate a model from /data/gutenberg/*.txt and save it to lm.pkl if you want an alpha value of 0.1 and a vocabulary size of 40000?
 
