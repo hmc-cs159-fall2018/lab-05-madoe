@@ -61,7 +61,7 @@ class EditDistanceFinder():
         counts = defaultdict(Counter) 
         self.probs = defaultdict(lambda: defaultdict(float))
 
-        alphabet = string.ascii_lowercase + "unk" + "%"
+        alphabet = [a for a in string.ascii_lowercase] + ['unk', '%']
 
         for a in alphabet:
             for b in alphabet:
