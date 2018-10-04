@@ -32,3 +32,7 @@ The `get_chunks` method caps the size of the chunk processed at once with the pa
 
 7. Describe the command-line interface for LanguageModel.py. What command should you run to generate a model from /data/gutenberg/*.txt and save it to lm.pkl if you want an alpha value of 0.1 and a vocabulary size of 40000?
 
+The command line interface has two required arguments, source and store, where source is what the model uses to train and store is what it uses to write the model into a file. It also has two optional arguments, alpha and vocab, which have default values, and alpha appears to be used for smoothing and vocabulary to set the allowable size of the vocabulary to collect from the data.
+For the above requirements, the command could be:
+python3 LanguageModel.py /data/gutenberg/*.txt --store lm.pkl --alpha 0.1 --vocab 40000
+

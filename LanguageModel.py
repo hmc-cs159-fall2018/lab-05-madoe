@@ -112,4 +112,3 @@ if __name__ == "__main__":
     lm.train(args.source)
 
     lm.save(args.store)
-
