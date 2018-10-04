@@ -36,3 +36,9 @@ class SpellChecker():
         score1 = self.language_model.bigram_prob(prev_word, focus_word)
         score2 = self.language_model.bigram_prob(focus_word, next_word)
         return (score1 + score2)/2
+
+    def unigram_score(self, word):
+        ''' Take a word as input and return the unigram probability of 
+        the word according to the LanguageModel '''
+        return self.language_model.unigram_prob(word)
+        
