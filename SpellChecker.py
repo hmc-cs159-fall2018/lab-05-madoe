@@ -1,5 +1,5 @@
 import EditDistance
-import LanguageModel
+from LanguageModel import LanguageModel
 import argparse
 import pickle
 import spacy
@@ -30,7 +30,7 @@ class SpellChecker():
         SpellChecker object’s language_model data member to a default 
         LanguageModel and then load the stored language model (e.g. lm.pkl) 
         from fp into that data member. ''' 
-        self.language_model = LanguageModel.LanguageModel()
+        self.language_model = LanguageModel()
         self.language_model.load(fp)
 
     def bigram_score(self, prev_word, focus_word, next_word):
@@ -59,7 +59,6 @@ class SpellChecker():
                 potentialWords.append(spliced)
 
         return potentialWords
-
 
     def substitutions(self, word):
         ''' Take in potentially misspelled word and find list of 
@@ -118,24 +117,32 @@ class SpellChecker():
     def inserts(self, word):
         ''' Take a word as input and return a list of words (that are in 
         the LanguageModel) that are within one insert of word.'''
+
         within_one_insert = []
+
         for intended_word in self.language_model.vocabulary:
-            # if we inserted 1 char to get from observed word to intended_word
+            
+            # only consider intended words whose length is exactly 1 greater than word
             if len(word) + 1 == len(intended_word):
-                alignment = self.channel_model.align(word, intended_word)
-                distance, tuples = self.channel_model.align("suprise", "surprise")
-                observed = ""
-                intended = ""
-                perc_count = 0
+
+                distance, tuples = self.channel_model.align(word, intended_word)
+                insert_count = 0
+                doesnt_work = False
+
                 for t in tuples:
-                    if perc_count > 1: break
-                    if t[0] != t[1] or t[0] != "%": break
-                    if t[0]=="%":
-                        perc_count += 1
-                    observed += t[0]
-                    intended += t[1]
-                print(observed)
-                print(intended)
+                    if insert_count > 1:                # needing to insert more than once
+                        doesnt_work = True              # means this intended word doesn't work
+                        break
+                    if t[0] != t[1] and t[0] != "%":    # if we needed a substitution or deletion
+                        doesnt_work = True              # then this intended word doesn't work
+                        break
+                    if t[0]=="%":                       # we're only allowed one insertion, so
+                        insert_count += 1               # need to keep track
+
+                if not doesnt_work:                          # as long as intended word works,
+                    within_one_insert.append(intended_word)  # add it to list
+            
+        return within_one_insert
 
     def check_non_words(self, sentence, fallback=False):
         suggestions = [] 
@@ -195,6 +202,6 @@ if __name__ == "__main__":
 
     sp = SpellChecker(max_distance = 2)
     sp.load_channel_model(args.ed)
-    lm = LanguageModel.LanguageModel()
-    fp = open("lm.pkl", "rb")
-    lm.load(fp)
+    sp.load_language_model(args.lm)
+
+ 
