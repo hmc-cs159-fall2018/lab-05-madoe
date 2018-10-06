@@ -1,5 +1,5 @@
 import EditDistance
-import LanguageModel
+from LanguageModel import LanguageModel
 import argparse
 import pickle
 import spacy
@@ -193,8 +193,6 @@ if __name__ == "__main__":
     parser.add_argument("--lm", type=argparse.FileType('rb'))
     args = parser.parse_args()
 
-    sp = SpellChecker(max_distance = 2)
+    sp = SpellChecker(max_distance=2)
     sp.load_channel_model(args.ed)
-    lm = LanguageModel.LanguageModel()
-    fp = open("lm.pkl", "rb")
-    lm.load(fp)
+    sp.load_language_model(args.lm)
