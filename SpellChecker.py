@@ -88,7 +88,9 @@ class SpellChecker():
 
 
     def generate_candidates(self, word):
-
+        ''' Takes a word as input and returns a list of
+        words that are within self.max_distance edits of word 
+        by calling inserts, deletes, and substitutions '''
         potentials = []
         potentials.extend(self.inserts(word))
         potentials.extend(self.deletes(word))
@@ -145,6 +147,13 @@ class SpellChecker():
         return within_one_insert
 
     def check_non_words(self, sentence, fallback=False):
+        ''' Takes in list of words and returns a list of lists
+        such that each sublist in the returned lists corresponds
+        to a single word in the input. For each word in input, 
+        if it's in the language model, its sublist in the output
+        will just contain that word. Otherwise, its sublist will
+        be a list of possible corrections sorted from most likely
+        to least likely (combo of LangModel and EditDist scores) '''
         suggestions = [] 
 
         for word in sentence:
@@ -164,10 +173,15 @@ class SpellChecker():
         return suggestions
 
     def check_sentence(self, sentence, fallback=False):
+        ''' Takes in tokenized sentence (list of words) and
+        returns the result of calling check_non_words on it'''
         return self.check_non_words(sentence, fallback)
 
     def check_text(self, text, fallback=False):
-        
+        ''' Takes in string as input, tokenizes and sentence
+        segments it with spacy, then returns the concatenated
+        result of calling check_sentence on all of the resulting
+        sentence objects ''' 
         nlp = English()
         doc = nlp(text)
         sents = list(doc.sents)
@@ -181,7 +195,12 @@ class SpellChecker():
 
 
     def autocorrect_sentence(self, sentence):
-        pass
+        ''' Takes in a tokenized sentence as a list of
+        words, calls check_sentence on that sentence, and
+        returns list of tokens where each non-word has been
+        replaced by its most likely spelling correction '''
+        
+
 
     def autocorrect_line(self, line):
         pass
