@@ -1,10 +1,13 @@
 import EditDistance
 import LanguageModel
+import argparse
 import pickle
+import spacy
+from spacy.lang.en import English
 
 class SpellChecker():
 
-    def __init__(self, channel_model=None, language_model=None, max_distance):
+    def __init__(self, max_distance, channel_model=None, language_model=None):
         ''' takes in EditDistanceFinder object as channel_model, 
         LanguageModel object as language_model, and an int as max_distance
         to initialize the SpellChecker. '''
@@ -20,7 +23,7 @@ class SpellChecker():
         and then load the stored language model (e.g. ed.pkl) 
         from fp into that data member. '''
         self.channel_model = EditDistance.EditDistanceFinder()
-        self.channel_model = pickle.load(fp)
+        self.channel_model.load(fp)
 
     def load_language_model(self, fp):
         ''' Takes in a file pointer as input and should initialize the 
@@ -28,8 +31,7 @@ class SpellChecker():
         LanguageModel and then load the stored language model (e.g. lm.pkl) 
         from fp into that data member. ''' 
         self.language_model = LanguageModel.LanguageModel()
-        self.language_model = pickle.load(fp)
-        
+        self.language_model.load(fp)
 
     def bigram_score(self, prev_word, focus_word, next_word):
         ''' Take in 3 words and return average of bigram probability 
@@ -86,7 +88,7 @@ class SpellChecker():
         return potentialWords 
 
 
-    def generate_candidates(word):
+    def generate_candidates(self, word):
 
         potentials = []
         potentials.extend(self.inserts(word))
@@ -101,8 +103,98 @@ class SpellChecker():
                 temp.extend(self.inserts(pot))
                 temp.extend(self.deletes(pot))
                 temp.extend(self.substitutions(pot))
-            potentials = temp
+            potentials.extend(temp)
             temp = []
             n += 1
 
         return potentials
+
+
+    def unigram_score(self, word):
+        ''' Take a word as input and return the unigram probability of 
+        the word according to the LanguageModel '''
+        return self.language_model.unigram_prob(word)
+        
+    def inserts(self, word):
+        ''' Take a word as input and return a list of words (that are in 
+        the LanguageModel) that are within one insert of word.'''
+        within_one_insert = []
+        for intended_word in self.language_model.vocabulary:
+            # if we inserted 1 char to get from observed word to intended_word
+            if len(word) + 1 == len(intended_word):
+                alignment = self.channel_model.align(word, intended_word)
+                distance, tuples = self.channel_model.align("suprise", "surprise")
+                observed = ""
+                intended = ""
+                perc_count = 0
+                for t in tuples:
+                    if perc_count > 1: break
+                    if t[0] != t[1] or t[0] != "%": break
+                    if t[0]=="%":
+                        perc_count += 1
+                    observed += t[0]
+                    intended += t[1]
+                print(observed)
+                print(intended)
+
+    def check_non_words(self, sentence, fallback=False):
+        suggestions = [] 
+
+        for word in sentence:
+            if word in self.language_model.vocabulary:
+                suggestions.append([word])
+            else:
+                corrections = self.generate_candidates(word)
+                #!!!!!!!!!!
+                #Sorting needs to happen here but that direction was unclear....
+                #some sort Language model score + edit distance score...
+                #!!!!!!!!!
+                if len(corrections) == 0 and fallback:
+                    suggestions.append([word])
+                else:
+                    suggestions.append(corrections)
+
+        return suggestions
+
+    def check_sentence(self, sentence, fallback=False):
+        return self.check_non_words(sentence, fallback)
+
+    def check_text(self, text, fallback=False):
+        
+        nlp = English()
+        doc = nlp(text)
+        sents = list(doc.sents)
+        text = []
+        for sent in sents:
+            wordList = [t.text for t in sent]
+            checked = check_sentence(wordList, fallback)
+            text.extend(checked)
+
+        return text
+
+
+    def autocorrect_sentence(self, sentence):
+        pass
+
+    def autocorrect_line(self, line):
+        pass
+
+    def suggest_sentence(self, sentence, max_suggestions):
+        pass
+
+    def suggest_text(self, text, max_suggestions):
+        pass
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ed", type=argparse.FileType('rb'))
+    parser.add_argument("--lm", type=argparse.FileType('rb'))
+    args = parser.parse_args()
+
+    sp = SpellChecker(max_distance = 2)
+    sp.load_channel_model(args.ed)
+    lm = LanguageModel.LanguageModel()
+    fp = open("lm.pkl", "rb")
+    lm.load(fp)
