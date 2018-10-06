@@ -167,7 +167,7 @@ class SpellChecker():
         text = []
         for sent in sents:
             wordList = [t.text for t in sent]
-            checked = check_sentence(wordList, fallback)
+            checked = self.check_sentence(wordList, fallback)
             text.extend(checked)
 
         return text
