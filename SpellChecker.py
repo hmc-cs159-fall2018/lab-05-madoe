@@ -199,7 +199,7 @@ class SpellChecker():
         words, calls check_sentence on that sentence, and
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
-        
+        suggestions = check_sentence(sentence)
 
 
     def autocorrect_line(self, line):
