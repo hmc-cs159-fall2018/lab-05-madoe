@@ -49,7 +49,6 @@ class SpellChecker():
         prob = self.channel_model.prob(error_word, corrected_word)
         return prob
 
-
     def deletes(self, word):
         ''' Takes in a potentially misspelled word and checks for 
         words in the language model vocabulary that are within one 
@@ -105,29 +104,13 @@ class SpellChecker():
 
         while n < self.max_distance:
             for pot in potentials:
-                temp.extend(self.inserts(pot))
-                temp.extend(self.deletes(pot))
-                temp.extend(self.substitutions(pot))
-            potentials.extend(temp)
+                temp.extend(self.inserts(pot))               # as we go, dedupe temp!
+                temp.extend(list(filter(lambda x: x not in temp, self.deletes(pot))))
+                temp.extend(list(filter(lambda x: x not in temp, self.substitutions(pot))))
+            # make sure none of the things in temp are already in potentials!
+            potentials.extend(list(filter(lambda x: x not in potentials, temp)))
             temp = []
             n += 1
-        '''
-        lowercase = string.ascii_lowercase
-        print(lowercase)
-
-        for item in potentials:
-            correct = True
-            for letter in item:
-                if not (letter in lowercase):
-                    correct = False
-
-            if not correct:
-                print("removed item")
-                potentials.remove(item)
-
-                '''
-
-
         return potentials
 
 
@@ -165,7 +148,7 @@ class SpellChecker():
 
                     if not doesnt_work:                          # as long as intended word works,
                         within_one_insert.append(intended_word)  # add it to list
-                
+
         return within_one_insert
 
     def check_sentence(self, sentence, fallback=False):
@@ -181,15 +164,15 @@ class SpellChecker():
         sentence.append('</s>')
         for index in range(1, len(sentence)-1):
             word = sentence[index]
-            print(word)
+            #print(word)
             if word in self.language_model.vocabulary:
-                print("found word in vocab")
+                #print("found word in vocab")
                 suggestions.append([word])
             else:
-                print("didnt find word in vocab")
+                #print("didnt find word in vocab")
                 corrections = self.generate_candidates(word)
-                print("corrections: **************************")
-                print(corrections)
+                #print("corrections: **************************")
+                #print(corrections)
                 weighted = []
                 for item in corrections:
                     edprob = self.channel_model.prob(word, item)
@@ -206,13 +189,12 @@ class SpellChecker():
                 #print("corrections: **************************")
                 #print(corrections)
                 if len(corrections) == 0 and fallback:
-                    print("no corrections found")
+                    #print("no corrections found")
                     suggestions.append([word])
                 else:
                     suggestions.append(corrections)
-        print("suggestions: **************************")
-        print(suggestions)
-
+        #print("suggestions: **************************")
+        #print(suggestions)
         return suggestions
 
     
@@ -235,16 +217,14 @@ class SpellChecker():
             wordList = [t.text for t in sent]
             checked = self.check_sentence(wordList, fallback)
             text.extend(checked)
-
         return text
-
 
     def autocorrect_sentence(self, sentence):
         ''' Takes in a tokenized sentence as a list of
         words, calls check_sentence on that sentence, and
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
-        suggestions = self.check_sentence(sentence)
+        suggestions = self.check_sentence(sentence, fallback=True)
         return [sublist[0] for sublist in suggestions]
 
     def autocorrect_line(self, line):
@@ -256,12 +236,24 @@ class SpellChecker():
         nlp.add_pipe(nlp.create_pipe('sentencizer'))
         doc = nlp(line)
         sents = list(doc.sents)
+        punc = [s[-1] for s in sents]       # save end of sentence punctuation
+        sents = [s[:-1] for s in sents]     # get rid of end of sentence punctuation 
+        #punc_indices = [i for i, x in enumerate(s) if x in exclude] # indicies where we observe punctuation in word
+        #word = ''.join(ch for ch in word if ch not in exclude) # remove puctuation
         text = []
-        for sent in sents:
-            wordList = [t.text for t in sent]
+        for i in range(len(sents) - 1):
+            #print(sents[i])
+            wordList = [t.text for t in sents[i]]
+            wordList = [w.lower() for w in wordList]               # get rid of capitalization
+            wordList = [''.join(ch for ch in word if ch not in set(string.punctuation)) for word in wordList]
+            wordList = list(filter(lambda x: x != "", wordList))   # get rid of things that only consisted of punc
             checked = self.autocorrect_sentence(wordList)
+            #print(checked)
+            #print(checked[-1])
+            #print(str(punc[i]))
+            checked[-1] += str(punc[i])                            # replace punctuation at end
+            checked[0] = checked[0][0].upper() + checked[0][1:]    # capitalize first character 
             text.extend(checked)
-
         return text
 
     def suggest_sentence(self, sentence, max_suggestions):
@@ -281,7 +273,20 @@ class SpellChecker():
 
 
     def suggest_text(self, text, max_suggestions):
-        pass
+        ''' Takes in a string as input, tokenizes and segments it with
+        spacy, then returns the concatenation of the result of calling
+        suggest_sentence on all of the resulting sentence objects '''
+        nlp = English()
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        doc = nlp(text)
+        sents = list(doc.sents)
+        text = []
+        for sent in sents:
+            wordList = [t.text for t in sent]
+            checked = self.suggest_sentence(wordList, max_suggestions)
+            text.extend(checked)
+
+        return text
 
 
 if __name__ == "__main__":
@@ -303,10 +308,18 @@ if __name__ == "__main__":
     #potentials = sp.generate_candidates("annd")
     #print(potentials)
     #print(sp.unigram_score("love"))
+    #print(sp.check_non_words(["i", "love", "yu", "cat"], fallback=False))
+    #print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
+    
+    # UNCLEAR. will user need to remove punctuation? or should that be in function??
+    #print("," in sp.language_model.vocabulary)
+    #print(sp.suggest_text("ie love yu cat yiu r so prtty", 4))
+    print(sp.autocorrect_line("Ie love yu cat yiu r so prtty, dont you knoe?"))
+    #print(sp.suggest_text("Why the edits made under my username Hardcore Metallica Fan were reverted? They weren't vandalisms, just closure on some GAs after I voted at New York Dolls FAC. And please don't remove the template from the talk page since I'm retired now."))
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
-    #print(sp.autocorrect_sentence(sentence))
-    print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
+    #print(sp.autocorrect_sentence(["ie", "love", "yu", "cat"]))
+    #print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
 
 
 

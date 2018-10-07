@@ -8,7 +8,7 @@
 
 import argparse
 import sys
-from SpellCheck import SpellChecker
+from SpellChecker import SpellChecker
 from LanguageModel import LanguageModel
 from EditDistance import EditDistanceFinder
 

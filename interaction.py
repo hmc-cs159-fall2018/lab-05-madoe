@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print(s.channel_model.prob("hellp", "hello"))
     print(s.channel_model.prob("hllp", "hello"))
 
-    print(s.check_line("they did not yb any menas"))
+    print(s.check_text("they did not yb any menas"))
     """
     >>> [['they'], ['did'], ['not'], ['by', 'b', 'ye', 'y', 'yo', 'ob', 'ya', 'ab'], ['any'], 
     >>>  ['means', 'mens', 'mena', 'zenas', 'menan', 'mends']]

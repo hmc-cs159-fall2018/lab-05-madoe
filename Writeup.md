@@ -38,3 +38,11 @@ For the above requirements, the command could be:
 
 `python3 LanguageModel.py /data/gutenberg/*.txt --store lm.pkl --alpha 0.1 --vocab 40000`
 
+
+## Evaluation
+
+1. How often did your spell checker do a better job of correcting than ispell? Conversely, how often did ispell do a better job than your spell checker?
+
+2. Can you characterize the type of errors your spell checker tended to best at, and the type of errors ispell tended to do best at?
+
+3. Comment on anything else you notice that is interesting about spell checking – either for your model or for ispell.
