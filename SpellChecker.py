@@ -157,21 +157,35 @@ class SpellChecker():
         suggestions = [] 
 
         for word in sentence:
+            print(word)
             if word in self.language_model.vocabulary:
+                print("found word in vocab")
                 suggestions.append([word])
             else:
+                print("didnt find word in vocab")
                 corrections = self.generate_candidates(word)
+                print("corrections: **************************")
+                print(corrections)
                 weighted = []
                 for item in corrections:
-                    weighted.append((self.channel_model.prob(word, item)+self.unigram_score(item)), item)
-
+                    edprob = self.channel_model.prob(word, item)
+                    lmprob = self.unigram_score(item)
+                    weighted.append((edprob+lmprob), item)
+                print("weighted: **************************")
+                print(weighted)
                 sortedCorrections = sorted(weighted, key=lambda x: x[0])
+                print("sortedCorrections: **************************")
+                print(sortedCorrections)
                 corrections = [item[1] for item in sortedCorrections]
-                
+                print("corrections: **************************")
+                print(corrections)
                 if len(corrections) == 0 and fallback:
+                    print("no corrections found")
                     suggestions.append([word])
                 else:
                     suggestions.append(corrections)
+        print("suggestions: **************************")
+        print(suggestions)
 
         return suggestions
 
@@ -202,7 +216,9 @@ class SpellChecker():
         words, calls check_sentence on that sentence, and
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
-        suggestions = check_sentence(sentence)
+        suggestions = self.check_sentence(sentence)
+        #correct here
+        return suggestions
 
 
     def autocorrect_line(self, line):
@@ -225,6 +241,19 @@ if __name__ == "__main__":
     sp = SpellChecker(max_distance=2)
     sp.load_channel_model(args.ed)
     sp.load_language_model(args.lm)
+
+    #print(sp.bigram_score("I", "love", "you"))
+    #print(sp.cm_score("adn", "and"))
+    #print(sp.deletes("andd"))
+    #print(sp.substitutions("lkve"))
+    #print(sp.inserts("lve"))
+    #print(sp.generate_candidates("lve"))
+    #print(sp.unigram_score("love"))
+    print(sp.check_non_words(["I", "love", "you", "cat"], fallback=False))
+    #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
+    #print(sp.check_text("I love you, cat.", fallback=False))
+    #print(sp.autocorrect_sentence(sentence))
+
 
 
 

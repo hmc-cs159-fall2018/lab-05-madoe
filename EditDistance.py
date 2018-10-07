@@ -150,11 +150,19 @@ class EditDistanceFinder():
         self.show_alignment(alignments)
 
     def prob(self, observed_word, intended_word):
+        print("in edit distance prob")
+        print(observed_word)
+        print(intended_word)
+
         score, alignment = self.align(observed_word, intended_word)
+        print(alignment)
         total_prob = 0
         for observed_char, intended_char in alignment:
             intd = intended_char if intended_char in self.probs else "unk"
+            print(intd)
             obsv = observed_char if observed_char in self.probs[intd] else "unk"
+            print(obsv)
+            print(self.probs)
             try: 
                 total_prob += log(self.probs[intd][obsv])
             except:
