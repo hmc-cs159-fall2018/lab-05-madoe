@@ -111,6 +111,7 @@ class SpellChecker():
             n += 1
 
         lowercase = string.ascii_lowercase
+        print(lowercase)
 
         for item in potentials:
             correct = True
@@ -119,6 +120,7 @@ class SpellChecker():
                     correct = False
 
             if not correct:
+                print("removed item")
                 potentials.remove(item)
 
 
@@ -195,8 +197,8 @@ class SpellChecker():
                 #print("sortedCorrections: **************************")
                 #print(sortedCorrections)
                 corrections = [item[1] for item in sortedCorrections]
-                print("corrections: **************************")
-                print(corrections)
+                #print("corrections: **************************")
+                #print(corrections)
                 if len(corrections) == 0 and fallback:
                     print("no corrections found")
                     suggestions.append([word])
