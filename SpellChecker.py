@@ -105,16 +105,14 @@ class SpellChecker():
 
         while n < self.max_distance:
             for pot in potentials:
-                temp.extend(self.inserts(pot))
-                temp.extend(self.deletes(pot))
-                temp.extend(self.substitutions(pot))
+                temp.extend(self.inserts(pot))               # as we go, dedupe temp!
+                temp.extend(list(filter(lambda x: x not in temp, self.deletes(pot))))
+                temp.extend(list(filter(lambda x: x not in temp, self.substitutions(pot))))
+            # make sure none of the things in temp are already in potentials!
             potentials.extend(list(filter(lambda x: x not in potentials, temp)))
             temp = []
             n += 1
-            # uniquify. don't know why it's not 
-            potentials_set = {}
-            # map(potentials_set.__setitem__, potentials, [])
-        return potentials  #_set.keys()
+        return potentials
 
 
     def unigram_score(self, word):
