@@ -1,7 +1,7 @@
 ##
  # Harvey Mudd College, CS159
  # Swarthmore College, CS65
- #Copyright (c) 2018 Harvey Mudd College Computer Science Department, Claremont, CA
+ # Copyright (c) 2018 Harvey Mudd College Computer Science Department, Claremont, CA
  # Copyright (c) 2018 Swarthmore College Computer Science Department, Swarthmore, PA
 ##
 

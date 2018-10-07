@@ -217,12 +217,24 @@ class SpellChecker():
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
         suggestions = self.check_sentence(sentence)
-        #correct here
-        return suggestions
-
+        return [sublist[0] for sublist in suggestions]
 
     def autocorrect_line(self, line):
-        pass
+        ''' Takes in string as input, tokenizes and sentence
+        segments it with spacy, then returns the concatenated
+        result of calling autocorrect_sentence on all of the 
+        resulting sentence objects ''' 
+        nlp = English()
+        doc = nlp(text)
+        sents = list(doc.sents)
+        text = []
+        for sent in sents:
+            wordList = [t.text for t in sent]
+            checked = self.autocorrect_sentence(wordList)
+            text.extend(checked)
+
+        return text
+
 
     def suggest_sentence(self, sentence, max_suggestions):
         pass
@@ -255,6 +267,7 @@ if __name__ == "__main__":
     #print(sp.autocorrect_sentence(sentence))
 
 
+    #sp.autocorrect_sentence("Help me ut")
 
 
  
