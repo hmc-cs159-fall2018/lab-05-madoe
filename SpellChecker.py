@@ -88,9 +88,11 @@ class SpellChecker():
 
 
     def generate_candidates(self, word):
+        
         ''' Takes a word as input and returns a list of
         words that are within self.max_distance edits of word 
         by calling inserts, deletes, and substitutions '''
+
         potentials = []
         potentials.extend(self.inserts(word))
         potentials.extend(self.deletes(word))
@@ -170,7 +172,7 @@ class SpellChecker():
                 for item in corrections:
                     edprob = self.channel_model.prob(word, item)
                     lmprob = self.unigram_score(item)
-                    weighted.append((edprob+lmprob), item)
+                    weighted.append((edprob+lmprob, item))
                 print("weighted: **************************")
                 print(weighted)
                 sortedCorrections = sorted(weighted, key=lambda x: x[0])
@@ -259,15 +261,14 @@ if __name__ == "__main__":
     #print(sp.deletes("andd"))
     #print(sp.substitutions("lkve"))
     #print(sp.inserts("lve"))
-    #print(sp.generate_candidates("lve"))
+    #potentials = sp.generate_candidates("annd")
+    #print(potentials)
     #print(sp.unigram_score("love"))
-    print(sp.check_non_words(["I", "love", "you", "cat"], fallback=False))
+    print(sp.check_non_words(["ve"], fallback=False))
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you, cat.", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
 
-
-    #sp.autocorrect_sentence("Help me ut")
 
 
  
