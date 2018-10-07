@@ -221,9 +221,9 @@ class SpellChecker():
 
         return text
 
-
     def suggest_sentence(self, sentence, max_suggestions):
         pass
+
 
     def suggest_text(self, text, max_suggestions):
         pass
