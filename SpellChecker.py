@@ -197,12 +197,6 @@ class SpellChecker():
         #print(suggestions)
         return suggestions
 
-    
-    #def check_sentence(self, sentence, fallback=False):
-    #    ''' Takes in tokenized sentence (list of words) and
-    #    returns the result of calling check_non_words on it'''
-    #    return self.check_non_words(sentence, fallback)
-
     def check_text(self, text, fallback=False):
         ''' Takes in string as input, tokenizes and sentence
         segments it with spacy, then returns the concatenated
@@ -308,7 +302,7 @@ if __name__ == "__main__":
     #potentials = sp.generate_candidates("annd")
     #print(potentials)
     #print(sp.unigram_score("love"))
-    #print(sp.check_non_words(["i", "love", "yu", "cat"], fallback=False))
+    #print(sp.check_sentence(["i", "love", "yu", "cat"], fallback=False))
     #print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
     
     # UNCLEAR. will user need to remove punctuation? or should that be in function??

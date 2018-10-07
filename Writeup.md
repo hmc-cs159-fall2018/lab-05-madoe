@@ -43,6 +43,13 @@ For the above requirements, the command could be:
 
 1. How often did your spell checker do a better job of correcting than ispell? Conversely, how often did ispell do a better job than your spell checker?
 
+More often than not, ispell outperforms our spell checker, especially where capitalization or punctuation are concerned. 
+
 2. Can you characterize the type of errors your spell checker tended to best at, and the type of errors ispell tended to do best at?
 
+Our spell checker right now isn't checking for capitalization in the middle of a sentence, but ispell preserves the ones that are correct (ie: DNA and China). However, our spell checker does better with removing random amounts of punctuation that shouldn't be there. For instance, ispell leaves "::::Jmabel;" as it is, but our spell checker autocorrects that to "Mabel" (which makes more sense). 
+
 3. Comment on anything else you notice that is interesting about spell checking – either for your model or for ispell.
+
+Our spellchecker autocorrects names it doesn't recognize. This is a commmon thing in autocorrect that most of us technology users are well aware of! However, ispell largely leaves proper names like that alone! Interesting choice. 
+
