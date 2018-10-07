@@ -108,27 +108,13 @@ class SpellChecker():
                 temp.extend(self.inserts(pot))
                 temp.extend(self.deletes(pot))
                 temp.extend(self.substitutions(pot))
-            potentials.extend(temp)
+            potentials.extend(list(filter(lambda x: x not in potentials, temp)))
             temp = []
             n += 1
-        '''
-        lowercase = string.ascii_lowercase
-        print(lowercase)
-
-        for item in potentials:
-            correct = True
-            for letter in item:
-                if not (letter in lowercase):
-                    correct = False
-
-            if not correct:
-                print("removed item")
-                potentials.remove(item)
-
-                '''
-
-
-        return potentials
+            # uniquify. don't know why it's not 
+            potentials_set = {}
+            # map(potentials_set.__setitem__, potentials, [])
+        return potentials  #_set.keys()
 
 
     def unigram_score(self, word):
@@ -302,11 +288,11 @@ if __name__ == "__main__":
     #potentials = sp.generate_candidates("annd")
     #print(potentials)
     #print(sp.unigram_score("love"))
-    sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
-    print(sp.suggest_sentence(["i", "love", "yu", "cat"], 1))
+    #print(sp.check_non_words(["i", "love", "yu", "cat"], fallback=False))
+    print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
-    #print(sp.autocorrect_sentence(sentence))
+    #print(sp.autocorrect_sentence(["ie", "love", "yu", "cat"]))
     #print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
 
 
