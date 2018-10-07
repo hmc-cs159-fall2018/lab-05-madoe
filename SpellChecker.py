@@ -91,6 +91,7 @@ class SpellChecker():
         ''' Takes a word as input and returns a list of
         words that are within self.max_distance edits of word 
         by calling inserts, deletes, and substitutions '''
+        #word = word.lower()
         potentials = []
         potentials.extend(self.inserts(word))
         potentials.extend(self.deletes(word))
@@ -155,8 +156,10 @@ class SpellChecker():
         be a list of possible corrections sorted from most likely
         to least likely (combo of LangModel and EditDist scores) '''
         suggestions = [] 
-
-        for word in sentence:
+        sentence.insert(0, '<s>')
+        sentence.append('</s>')
+        for index in range(1, len(sentence)-1):
+            word = sentence[index]
             print(word)
             if word in self.language_model.vocabulary:
                 print("found word in vocab")
@@ -169,13 +172,15 @@ class SpellChecker():
                 weighted = []
                 for item in corrections:
                     edprob = self.channel_model.prob(word, item)
-                    lmprob = self.unigram_score(item)
-                    weighted.append((edprob+lmprob), item)
-                print("weighted: **************************")
-                print(weighted)
-                sortedCorrections = sorted(weighted, key=lambda x: x[0])
-                print("sortedCorrections: **************************")
-                print(sortedCorrections)
+                    lmprob1 = self.unigram_score(item)
+                    lmprob2 = self.bigram_score(sentence[index-1], item, sentence[index+1])
+                    avg = (lmprob1+lmprob2)/2.0
+                    weighted.append(((edprob+avg), item))
+                #print("weighted: **************************")
+                #print(weighted)
+                sortedCorrections = sorted(weighted, key=lambda x: x[0], reverse=True)
+                #print("sortedCorrections: **************************")
+                #print(sortedCorrections)
                 corrections = [item[1] for item in sortedCorrections]
                 print("corrections: **************************")
                 print(corrections)
@@ -200,6 +205,7 @@ class SpellChecker():
         result of calling check_sentence on all of the resulting
         sentence objects ''' 
         nlp = English()
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))
         doc = nlp(text)
         sents = list(doc.sents)
         text = []
@@ -225,7 +231,8 @@ class SpellChecker():
         result of calling autocorrect_sentence on all of the 
         resulting sentence objects ''' 
         nlp = English()
-        doc = nlp(text)
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        doc = nlp(line)
         sents = list(doc.sents)
         text = []
         for sent in sents:
@@ -236,7 +243,19 @@ class SpellChecker():
         return text
 
     def suggest_sentence(self, sentence, max_suggestions):
-        pass
+        ''' Takes in list of words as input, calls check_sentence on it,
+        and returns a list where real words are just strings in the list
+        and non-words are represented by lists of corrections limited to
+        max_suggestions number of suggestions. '''
+        corrections = self.check_sentence(sentence)
+        limited = []
+        for correct in corrections:
+            if len(correct) == 1:
+                limited.append(correct[0])
+            else:
+                limited.append(correct[:max_suggestions])
+
+        return limited
 
 
     def suggest_text(self, text, max_suggestions):
@@ -261,10 +280,11 @@ if __name__ == "__main__":
     #print(sp.inserts("lve"))
     #print(sp.generate_candidates("lve"))
     #print(sp.unigram_score("love"))
-    print(sp.check_non_words(["I", "love", "you", "cat"], fallback=False))
+    #sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
-    #print(sp.check_text("I love you, cat.", fallback=False))
+    #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
+    print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
 
 
     #sp.autocorrect_sentence("Help me ut")
