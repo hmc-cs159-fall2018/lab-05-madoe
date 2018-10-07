@@ -202,8 +202,8 @@ class SpellChecker():
         words, calls check_sentence on that sentence, and
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
-        suggestions = check_sentence(sentence)
-
+        suggestions = self.check_sentence(sentence)
+        return [sublist[0] for sublist in suggestions]
 
     def autocorrect_line(self, line):
         pass
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     sp = SpellChecker(max_distance=2)
     sp.load_channel_model(args.ed)
     sp.load_language_model(args.lm)
-
+    sp.autocorrect_sentence("Help me ut")
 
 
  
