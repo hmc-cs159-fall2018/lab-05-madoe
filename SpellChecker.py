@@ -4,6 +4,7 @@ import argparse
 import pickle
 import spacy
 from spacy.lang.en import English
+import string
 
 class SpellChecker():
 
@@ -108,6 +109,18 @@ class SpellChecker():
             potentials.extend(temp)
             temp = []
             n += 1
+
+        lowercase = string.ascii_lowercase
+
+        for item in potentials:
+            correct = True
+            for letter in item:
+                if not (letter in lowercase):
+                    correct = False
+
+            if not correct:
+                potentials.remove(item)
+
 
         return potentials
 
