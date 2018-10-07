@@ -168,7 +168,7 @@ class SpellChecker():
                 
         return within_one_insert
 
-    def check_non_words(self, sentence, fallback=False):
+    def check_sentence(self, sentence, fallback=False):
         ''' Takes in list of words and returns a list of lists
         such that each sublist in the returned lists corresponds
         to a single word in the input. For each word in input, 
@@ -215,10 +215,11 @@ class SpellChecker():
 
         return suggestions
 
-    def check_sentence(self, sentence, fallback=False):
-        ''' Takes in tokenized sentence (list of words) and
-        returns the result of calling check_non_words on it'''
-        return self.check_non_words(sentence, fallback)
+    
+    #def check_sentence(self, sentence, fallback=False):
+    #    ''' Takes in tokenized sentence (list of words) and
+    #    returns the result of calling check_non_words on it'''
+    #    return self.check_non_words(sentence, fallback)
 
     def check_text(self, text, fallback=False):
         ''' Takes in string as input, tokenizes and sentence
@@ -302,7 +303,6 @@ if __name__ == "__main__":
     #potentials = sp.generate_candidates("annd")
     #print(potentials)
     #print(sp.unigram_score("love"))
-    #sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
