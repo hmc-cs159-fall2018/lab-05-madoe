@@ -302,7 +302,7 @@ if __name__ == "__main__":
     #potentials = sp.generate_candidates("annd")
     #print(potentials)
     #print(sp.unigram_score("love"))
-    sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
+    #sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
