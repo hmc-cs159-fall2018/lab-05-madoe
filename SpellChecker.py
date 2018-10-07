@@ -264,7 +264,20 @@ class SpellChecker():
 
 
     def suggest_text(self, text, max_suggestions):
-        pass
+        ''' Takes in a string as input, tokenizes and segments it with
+        spacy, then returns the concatenation of the result of calling
+        suggest_sentence on all of the resulting sentence objects '''
+        nlp = English()
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        doc = nlp(text)
+        sents = list(doc.sents)
+        text = []
+        for sent in sents:
+            wordList = [t.text for t in sent]
+            checked = self.suggest_sentence(wordList, max_suggestions)
+            text.extend(checked)
+
+        return text
 
 
 if __name__ == "__main__":
@@ -287,7 +300,13 @@ if __name__ == "__main__":
     #print(potentials)
     #print(sp.unigram_score("love"))
     #print(sp.check_non_words(["i", "love", "yu", "cat"], fallback=False))
-    print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
+    #print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
+    
+    # UNCLEAR. will user need to remove punctuation? or should that be in function??
+
+    print(sp.suggest_text("ie love yu cat yiu r so prtty", 4))
+    print(sp.autocorrect_line("ie love yu cat yiu r so prtty"))
+    
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(["ie", "love", "yu", "cat"]))
