@@ -299,10 +299,11 @@ if __name__ == "__main__":
     #print(potentials)
     #print(sp.unigram_score("love"))
     sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
+    print(sp.suggest_sentence(["i", "love", "yu", "cat"], 1))
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
-    print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
+    #print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
 
 
 
