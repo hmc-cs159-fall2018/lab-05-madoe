@@ -49,7 +49,6 @@ class SpellChecker():
         prob = self.channel_model.prob(error_word, corrected_word)
         return prob
 
-
     def deletes(self, word):
         ''' Takes in a potentially misspelled word and checks for 
         words in the language model vocabulary that are within one 
@@ -149,7 +148,7 @@ class SpellChecker():
 
                     if not doesnt_work:                          # as long as intended word works,
                         within_one_insert.append(intended_word)  # add it to list
-                
+
         return within_one_insert
 
     def check_non_words(self, sentence, fallback=False):
@@ -165,12 +164,12 @@ class SpellChecker():
         sentence.append('</s>')
         for index in range(1, len(sentence)-1):
             word = sentence[index]
-            print(word)
+            #print(word)
             if word in self.language_model.vocabulary:
-                print("found word in vocab")
+                #print("found word in vocab")
                 suggestions.append([word])
             else:
-                print("didnt find word in vocab")
+                #print("didnt find word in vocab")
                 corrections = self.generate_candidates(word)
                 #print("corrections: **************************")
                 #print(corrections)
@@ -190,13 +189,12 @@ class SpellChecker():
                 #print("corrections: **************************")
                 #print(corrections)
                 if len(corrections) == 0 and fallback:
-                    print("no corrections found")
+                    #print("no corrections found")
                     suggestions.append([word])
                 else:
                     suggestions.append(corrections)
         #print("suggestions: **************************")
         #print(suggestions)
-
         return suggestions
 
     def check_sentence(self, sentence, fallback=False):
@@ -218,16 +216,14 @@ class SpellChecker():
             wordList = [t.text for t in sent]
             checked = self.check_sentence(wordList, fallback)
             text.extend(checked)
-
         return text
-
 
     def autocorrect_sentence(self, sentence):
         ''' Takes in a tokenized sentence as a list of
         words, calls check_sentence on that sentence, and
         returns list of tokens where each non-word has been
         replaced by its most likely spelling correction '''
-        suggestions = self.check_sentence(sentence)
+        suggestions = self.check_sentence(sentence, fallback=True)
         return [sublist[0] for sublist in suggestions]
 
     def autocorrect_line(self, line):
@@ -244,17 +240,19 @@ class SpellChecker():
         #punc_indices = [i for i, x in enumerate(s) if x in exclude] # indicies where we observe punctuation in word
         #word = ''.join(ch for ch in word if ch not in exclude) # remove puctuation
         text = []
-        for i in range(len(sents)):
+        for i in range(len(sents) - 1):
+            #print(sents[i])
             wordList = [t.text for t in sents[i]]
-            wordList = [w.lower() for w in wordList]                 # get rid of capitalization
+            wordList = [w.lower() for w in wordList]               # get rid of capitalization
             wordList = [''.join(ch for ch in word if ch not in set(string.punctuation)) for word in wordList]
-            wordList = list(filter(lambda x: x != "", wordList))     # get rid of things that only consisted of punc
-            print(wordList)
+            wordList = list(filter(lambda x: x != "", wordList))   # get rid of things that only consisted of punc
             checked = self.autocorrect_sentence(wordList)
-            checked[-1] += str(punc[i])                              # replace punctuation at end
-            checked[0] = checked[0][0].upper() + checked[0][1:]      # capitalize first character 
+            #print(checked)
+            #print(checked[-1])
+            #print(str(punc[i]))
+            checked[-1] += str(punc[i])                            # replace punctuation at end
+            checked[0] = checked[0][0].upper() + checked[0][1:]    # capitalize first character 
             text.extend(checked)
-
         return text
 
     def suggest_sentence(self, sentence, max_suggestions):
