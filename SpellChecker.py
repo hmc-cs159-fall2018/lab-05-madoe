@@ -172,8 +172,8 @@ class SpellChecker():
             else:
                 print("didnt find word in vocab")
                 corrections = self.generate_candidates(word)
-                print("corrections: **************************")
-                print(corrections)
+                #print("corrections: **************************")
+                #print(corrections)
                 weighted = []
                 for item in corrections:
                     edprob = self.channel_model.prob(word, item)
@@ -194,8 +194,8 @@ class SpellChecker():
                     suggestions.append([word])
                 else:
                     suggestions.append(corrections)
-        print("suggestions: **************************")
-        print(suggestions)
+        #print("suggestions: **************************")
+        #print(suggestions)
 
         return suggestions
 
@@ -239,10 +239,20 @@ class SpellChecker():
         nlp.add_pipe(nlp.create_pipe('sentencizer'))
         doc = nlp(line)
         sents = list(doc.sents)
+        punc = [s[-1] for s in sents]       # save end of sentence punctuation
+        sents = [s[:-1] for s in sents]     # get rid of end of sentence punctuation 
+        #punc_indices = [i for i, x in enumerate(s) if x in exclude] # indicies where we observe punctuation in word
+        #word = ''.join(ch for ch in word if ch not in exclude) # remove puctuation
         text = []
-        for sent in sents:
-            wordList = [t.text for t in sent]
+        for i in range(len(sents)):
+            wordList = [t.text for t in sents[i]]
+            wordList = [w.lower() for w in wordList]                 # get rid of capitalization
+            wordList = [''.join(ch for ch in word if ch not in set(string.punctuation)) for word in wordList]
+            wordList = list(filter(lambda x: x != "", wordList))     # get rid of things that only consisted of punc
+            print(wordList)
             checked = self.autocorrect_sentence(wordList)
+            checked[-1] += str(punc[i])                              # replace punctuation at end
+            checked[0] = checked[0][0].upper() + checked[0][1:]      # capitalize first character 
             text.extend(checked)
 
         return text
@@ -303,10 +313,10 @@ if __name__ == "__main__":
     #print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
     
     # UNCLEAR. will user need to remove punctuation? or should that be in function??
-
-    print(sp.suggest_text("ie love yu cat yiu r so prtty", 4))
-    print(sp.autocorrect_line("ie love yu cat yiu r so prtty"))
-    
+    #print("," in sp.language_model.vocabulary)
+    #print(sp.suggest_text("ie love yu cat yiu r so prtty", 4))
+    print(sp.autocorrect_line("Ie love yu cat yiu r so prtty, dont you knoe?"))
+    #print(sp.suggest_text("Why the edits made under my username Hardcore Metallica Fan were reverted? They weren't vandalisms, just closure on some GAs after I voted at New York Dolls FAC. And please don't remove the template from the talk page since I'm retired now."))
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(["ie", "love", "yu", "cat"]))
