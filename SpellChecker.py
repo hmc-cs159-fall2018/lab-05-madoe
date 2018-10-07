@@ -3,6 +3,7 @@ from LanguageModel import LanguageModel
 import argparse
 import pickle
 import spacy
+import string
 from spacy.lang.en import English
 import string
 
@@ -69,30 +70,31 @@ class SpellChecker():
         potentialWords = []
         length = len(word)
         for posWord in self.language_model.vocabulary:
-            #we only want to examine words of the same length
-            if len(posWord) == length:
-                #counter for differences between words
-                diffs = 0
-                #loop through all the characters
-                for char1, char2 in zip(word, posWord):
-                    #if the characters are different
-                    if char1 != char2:
-                        diffs += 1
-                    #if more than one difference, its not 1 substitution away!
-                    if diffs > 1:
-                        break
-                #if within 1 substitution
-                if diffs < 2:
-                    potentialWords.append(posWord)
+            if all(c in string.ascii_lowercase for c in posWord):
+                #we only want to examine words of the same length
+                if len(posWord) == length:
+                    #counter for differences between words
+                    diffs = 0
+                    #loop through all the characters
+                    for char1, char2 in zip(word, posWord):
+                        #if the characters are different
+                        if char1 != char2:
+                            diffs += 1
+                        #if more than one difference, its not 1 substitution away!
+                        if diffs > 1:
+                            break
+                    #if within 1 substitution
+                    if diffs < 2:
+                        potentialWords.append(posWord)
 
         return potentialWords 
 
 
     def generate_candidates(self, word):
+        
         ''' Takes a word as input and returns a list of
         words that are within self.max_distance edits of word 
         by calling inserts, deletes, and substitutions '''
-        #word = word.lower()
         potentials = []
         potentials.extend(self.inserts(word))
         potentials.extend(self.deletes(word))
@@ -141,27 +143,29 @@ class SpellChecker():
         within_one_insert = []
 
         for intended_word in self.language_model.vocabulary:
-            
+
+            if all(c in string.ascii_lowercase for c in intended_word):
             # only consider intended words whose length is exactly 1 greater than word
-            if len(word) + 1 == len(intended_word):
+                
+                if len(word) + 1 == len(intended_word):
 
-                distance, tuples = self.channel_model.align(word, intended_word)
-                insert_count = 0
-                doesnt_work = False
+                    distance, tuples = self.channel_model.align(word, intended_word)
+                    insert_count = 0
+                    doesnt_work = False
 
-                for t in tuples:
-                    if insert_count > 1:                # needing to insert more than once
-                        doesnt_work = True              # means this intended word doesn't work
-                        break
-                    if t[0] != t[1] and t[0] != "%":    # if we needed a substitution or deletion
-                        doesnt_work = True              # then this intended word doesn't work
-                        break
-                    if t[0]=="%":                       # we're only allowed one insertion, so
-                        insert_count += 1               # need to keep track
+                    for t in tuples:
+                        if insert_count > 1:                # needing to insert more than once
+                            doesnt_work = True              # means this intended word doesn't work
+                            break
+                        if t[0] != t[1] and t[0] != "%":    # if we needed a substitution or deletion
+                            doesnt_work = True              # then this intended word doesn't work
+                            break
+                        if t[0]=="%":                       # we're only allowed one insertion, so
+                            insert_count += 1               # need to keep track
 
-                if not doesnt_work:                          # as long as intended word works,
-                    within_one_insert.append(intended_word)  # add it to list
-            
+                    if not doesnt_work:                          # as long as intended word works,
+                        within_one_insert.append(intended_word)  # add it to list
+                
         return within_one_insert
 
     def check_non_words(self, sentence, fallback=False):
@@ -295,16 +299,15 @@ if __name__ == "__main__":
     #print(sp.deletes("andd"))
     #print(sp.substitutions("lkve"))
     #print(sp.inserts("lve"))
-    #print(sp.generate_candidates("lve"))
+    #potentials = sp.generate_candidates("annd")
+    #print(potentials)
     #print(sp.unigram_score("love"))
-    #sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
+    sp.check_non_words(["i", "love", "yu", "cat"], fallback=False)
     #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
     #print(sp.check_text("I love you cat", fallback=False))
     #print(sp.autocorrect_sentence(sentence))
     print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
 
-
-    #sp.autocorrect_sentence("Help me ut")
 
 
  
