@@ -109,7 +109,7 @@ class SpellChecker():
             potentials.extend(temp)
             temp = []
             n += 1
-
+        '''
         lowercase = string.ascii_lowercase
         print(lowercase)
 
@@ -122,6 +122,8 @@ class SpellChecker():
             if not correct:
                 print("removed item")
                 potentials.remove(item)
+
+                '''
 
 
         return potentials
