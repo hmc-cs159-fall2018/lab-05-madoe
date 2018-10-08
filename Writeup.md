@@ -53,3 +53,11 @@ Our spell checker right now isn't checking for capitalization in the middle of a
 
 Our spellchecker autocorrects names it doesn't recognize. This is a commmon thing in autocorrect that most of us technology users are well aware of! However, ispell largely leaves proper names like that alone! Interesting choice. 
 
+## Transpositions
+
+1. Our approach was to simply iterate through the word and swap every pair of characters, checking if the result was in the vocabulary.
+Trying to isolate the location of the swap seemed more time and logic intensive than just trying all the pairs, since the more naive approach is a simple for loop. 
+
+2. This addition fixes the case where there is only an edit distance of 1 given, and to fix mistakes like 'heer', 'mistaek', and 'adn' would take two edits. It condenses what would be a deletion and insertion into one edit.
+
+3. We only tackled transpositions that occur next to eachother, for example, heer, not eerh, since transpositions next to eachother seem to be far more common. If letters are swapped elsewhere, that is more easily taken care of by substitutions.
