@@ -103,20 +103,16 @@ class SpellChecker():
         temp = []
 
         while n < self.max_distance:
-            #print("BEFORE extension and removing duplicates")
-            #print(potentials)
             for pot in potentials:
                 temp.extend(self.inserts(pot))               # as we go, dedupe temp!
                 temp.extend(list(filter(lambda x: x not in temp, self.deletes(pot))))
                 temp.extend(list(filter(lambda x: x not in temp, self.substitutions(pot))))
             # make sure none of the things in temp are already in potentials!
             potentials.extend(list(filter(lambda x: x not in potentials, temp)))
-            #print("AFTER")
-            #print(potentials)
             temp = []
             n += 1
 
-
+        # transposition!
         for index in range(0, len(word)-1):
             swap = word[0:index] + word[index+1] + word[index] + word[index+2:]
             if swap in self.language_model.vocabulary:
@@ -174,16 +170,10 @@ class SpellChecker():
         sentence.append('</s>')
         for index in range(1, len(sentence)-1):
             word = sentence[index]
-            #print(word)
             if word in self.language_model.vocabulary:
-                #print("found word in vocab")
                 suggestions.append([word])
             else:
-                #print(word)
-                #print("didnt find word in vocab")
                 corrections = self.generate_candidates(word)
-                #print("corrections: **************************")
-                #print(corrections)
                 weighted = []
                 for item in corrections:
                     edprob = self.channel_model.prob(word, item)
@@ -191,21 +181,12 @@ class SpellChecker():
                     lmprob2 = self.bigram_score(sentence[index-1], item, sentence[index+1])
                     avg = (lmprob1+lmprob2)/2.0
                     weighted.append(((edprob+avg), item))
-                #print("weighted: **************************")
-                #print(weighted)
                 sortedCorrections = sorted(weighted, key=lambda x: x[0], reverse=True)
-                #print("sortedCorrections: **************************")
-                #print(sortedCorrections)
                 corrections = [item[1] for item in sortedCorrections]
-                #print("corrections: **************************")
-                #print(corrections)
                 if len(corrections) == 0 and fallback:
-                    #print("no corrections found")
                     suggestions.append([word])
                 else:
                     suggestions.append(corrections)
-        #print("suggestions: **************************")
-        #print(suggestions)
         return suggestions
 
     def check_text(self, text, fallback=False):
@@ -242,24 +223,15 @@ class SpellChecker():
         doc = nlp(line)
         sents = list(doc.sents)
         punc = [s[-1] for s in sents]       # save end of sentence punctuation
-        print(punc)
         sents = [s[:-1] for s in sents]     # get rid of end of sentence punctuation 
-        #punc_indices = [i for i, x in enumerate(s) if x in exclude] # indicies where we observe punctuation in word
-        #word = ''.join(ch for ch in word if ch not in exclude) # remove puctuation
         text = []
         for i in range(len(sents)):
             if len(sents[i]) > 0:
-                print(sents[i])
                 wordList = [t.text for t in sents[i]]
                 wordList = [w.lower() for w in wordList]               # get rid of capitalization
                 wordList = [''.join(ch for ch in word if ch not in set(string.punctuation)) for word in wordList]
                 wordList = list(filter(lambda x: x != "", wordList))   # get rid of things that only consisted of punc
                 checked = self.autocorrect_sentence(wordList)
-                #print(checked)
-                #print(checked[-1])
-                #print(str(punc[i]))
-                print(punc)
-                print(i)
                 checked[-1] += str(punc[i])                            # replace punctuation at end
                 checked[0] = checked[0][0].upper() + checked[0][1:]    # capitalize first character 
                 text.extend(checked)
@@ -308,30 +280,6 @@ if __name__ == "__main__":
     sp = SpellChecker(max_distance=1)
     sp.load_channel_model(args.ed)
     sp.load_language_model(args.lm)
-
-    #print(sp.bigram_score("I", "love", "you"))
-    #print(sp.cm_score("adn", "and"))
-    #print(sp.deletes("andd"))
-    #print(sp.substitutions("lkve"))
-    #print(sp.inserts("lve"))
-    #potentials = sp.generate_candidates("annd")
-    #print(potentials)
-    #print(sp.unigram_score("love"))
-    #print(sp.check_sentence(["i", "love", "yu", "cat"], fallback=False))
-    #print(sp.suggest_sentence(["ie", "love", "yu", "cat"], 5))
-    
-    # UNCLEAR. will user need to remove punctuation? or should that be in function??
-    #print("," in sp.language_model.vocabulary)
-    #print(sp.suggest_text("ie love yu cat yiu r so prtty", 4))
-    #print(sp.autocorrect_line("Ie love yu cat yiu r so prtty, dont you knoe?"))
-    #print(sp.suggest_text("Why the edits made under my username Hardcore Metallica Fan were reverted? They weren't vandalisms, just closure on some GAs after I voted at New York Dolls FAC. And please don't remove the template from the talk page since I'm retired now."))
-    #print(sp.autocorrect_line("Bruh I just dont know whyy spirited away was so sureal. it could ave been a stylinstic choice but more likely itt was just a misteka."))
-    #print(sp.autocorrect_line("sureal. stylinstic misteka."))
-    #print(sp.check_sentence(["I", "love", "you", "cat"], fallback=False))
-    #print(sp.check_text("I love you cat", fallback=False))
-    #print(sp.autocorrect_sentence(["ie", "love", "yu", "cat"]))
-    #print(sp.suggest_sentence(["I", "love", "you", "cat"], 3))
-    #print(sp.generate_candidates("heer"))
 
 
 

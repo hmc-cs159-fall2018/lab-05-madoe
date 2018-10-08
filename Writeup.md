@@ -1,3 +1,5 @@
+## Language Model
+
 1. In Writeup.md, explain how Laplace smoothing works in general and how it is implemented in the EditDistance.py file. Why is Laplace smoothing needed in order to make the prob method work? In other words, the prob method wouldn’t work properly without smoothing – why?
 Laplace smoothing works by adding 1 to all your occurence counts in order to avoid probabilities of 0 - the training set will never be good enough to provide a valid probability for every possibility. It is implemented here:
 for a in alphabet:
@@ -55,9 +57,17 @@ Our spellchecker autocorrects names it doesn't recognize. This is a commmon thin
 
 ## Transpositions
 
-1. Our approach was to simply iterate through the word and swap every pair of characters, checking if the result was in the vocabulary.
+1. Describe your approach
+
+Our approach was to simply iterate through the word and swap every pair of characters, checking if the result was in the vocabulary.
 Trying to isolate the location of the swap seemed more time and logic intensive than just trying all the pairs, since the more naive approach is a simple for loop. 
 
-2. This addition fixes the case where there is only an edit distance of 1 given, and to fix mistakes like 'heer', 'mistaek', and 'adn' would take two edits. It condenses what would be a deletion and insertion into one edit.
+2. Give examples of how your approach works, including specific sentences where your new model gives a different (hopefully better!) result than the baseline model.
 
-3. We only tackled transpositions that occur next to eachother, for example, heer, not eerh, since transpositions next to eachother seem to be far more common. If letters are swapped elsewhere, that is more easily taken care of by substitutions.
+This addition fixes the case where there is only an edit distance of 1 given, and to fix mistakes like 'heer', 'mistaek', and 'adn' would take two edits. It condenses what would be a deletion and insertion into one edit. For example, in the sentence "I sometimes maek spelling mistakes" the baseline sends back "meek" while adding transpositions suggests the desired "make."
+
+3. Discuss any challenges you ran into, design decisions you made, etc.
+
+We only tackled transpositions that occur next to eachother, for example, heer, not eerh, since transpositions next to each other seem to be far more common. If letters are swapped elsewhere, that is more easily taken care of by substitutions.
+
+Note: We spent over 6 hours on this assignment and because we weren't really sure just how much more to hone it, we decided that the spell checker's present state is good enough.
